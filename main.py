@@ -1,54 +1,80 @@
-import random
+import random, tkinter as tk
 import board, ship
 
-myBoard = board.Grid()
-oppBoard = board.Grid()
+winMain = tk.Tk()
+
+# Set window width/height
+winMain.wm_geometry("500x500")
+
+# The following two lines allow the frame to fill the window
+# We use a single row and column, but this makes them "stretchable"
+winMain.columnconfigure(0, weight=1)
+winMain.rowconfigure(0, weight=1)
+
+myFrame = tk.Frame(winMain)
+oppFrame = tk.Frame(winMain)
+
+myFrame.grid(row=0, column=0, sticky="news")
+#oppFrame.grid(row=0, column=0, sticky="news")
+
+myBoard = board.Grid(myFrame)
+oppBoard = board.Grid(oppFrame)
 
 #urBoard.listShips()
 print("Welcome to Battleship!")
 print("Randomly placing ships for you on your board.")
+
 myBoard.placeShips()
 myBoard.showBoard(True)
 
 print("Randomly placing my ships (Don't peek!)")
-oppBoard.placeShips()
-oppBoard.showBoard(False) # TESTING: Set to True for testing (or cheating!)
+#oppBoard.placeShips()
+#oppBoard.showBoard(False) # TESTING: Set to True for testing (or cheating!)
 
 message = "Game Over"
 cheat = False
 gameOver = False
 bestGuess = ()
 
+def showMyBoard():
+    myFrame.tkraise()
+    return
+
+def showOppBoard():
+    #oppFrame.tkraise()
+    return
+
 def parseUserInput(target):
-        if target.upper() == "IDDQD":
-            cheat = not cheat
-            myBoard.showBoard(True)
-            oppBoard.showBoard(cheat) # TESTING: Set to True for testing (or cheating!)
-            print("Toggling cheeat mode!")
+    global cheat
+    if target.upper() == "IDDQD":
+        cheat = not cheat
+        myBoard.showBoard(True)
+        oppBoard.showBoard(cheat) # TESTING: Set to True for testing (or cheating!)
+        print("Toggling cheeat mode!")
+        return(False)
+
+    if target.upper() == 'Q': # Quit
+        userChoice = input("Do you really want to quit the game (Y/N)? ")
+        if userChoice.upper() == 'Y':
+            myBoard.quit()
+            return(True)
+        else:
             return(False)
+    
+    # Other "Cheat" codes:
+    # - Sink all their ships & end game?
+    # - Singk all our ships & forfeit?        
+    if not target[0].isalpha or not target[1:].isnumeric() or int(target[1:]) > 10:
+        print("Invalid selection.")
+        return(False)
 
-        if target.upper() == 'Q': # Quit
-            userChoice = input("Do you really want to quit the game (Y/N)? ")
-            if userChoice.upper() == 'Y':
-                myBoard.quit()
-                return(True)
-            else:
-                return(False)
-        
-        # Other "Cheat" codes:
-        # - Sink all their ships & end game?
-        # - Singk all our ships & forfeit?        
-        if not target[0].isalpha or not target[1:].isnumeric() or int(target[1:]) > 10:
-            print("Invalid selection.")
-            return(False)
-
-        return(True)
-
+    return(True)
 
 while not gameOver:
     # Columns are A-J, rows are 1-10
     # Take your turn by targeting a square, 
     # eg., 
+    showMyBoard()
     validInput = False
     while not validInput:
         target = input("Target a grid squre (eg., 'E5'): ")
@@ -56,6 +82,7 @@ while not gameOver:
 
     if myBoard.gameOver(): # Did user quit?
         message += " - You forfeit!"
+        winMain.destroy()
         break
 
     row = ord(target[0].upper()) - 65
@@ -64,11 +91,14 @@ while not gameOver:
     # Target/Shoot
     oppBoard.targetCell(col, row)
 
+    # FIXME: Logically this is awkward and should probably 
     if oppBoard.gameOver():
         message += " - You win!"
         gameOver = True
 
+    # Their turn
     else:
+        showOppBoard()
         if bestGuess:
             # Computer's turn: (Dumb algorithm = random guess)
             col = random.randint(0, 9)
@@ -84,3 +114,5 @@ while not gameOver:
     oppBoard.showBoard(cheat) # TESTING: Set to True for testing (or cheating!)
 
 print(message)
+
+winMain.mainloop()

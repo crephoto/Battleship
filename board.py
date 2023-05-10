@@ -1,5 +1,5 @@
 from enum import Enum
-import random
+import random, tkinter as tk
 import ship
 
 # class v2002(Enum):
@@ -16,20 +16,26 @@ v2002 = {"Carrier": 5, "Battleship": 4, "Destroyer": 3, "Submarine": 3, "PT Boat
 
 markers = {"Hit": 'X', "Miss": 'm', "Water": 'w', "Ships": 'BCDPS'}
 
+gridSize = 50 # Pixels per grid
+
 class Grid:
     height = 10
     width = 10
     hitsRemaining = 0
     forfeit = False
     
-    def __init__(self):
+    def __init__(self, frame):
         self.board = [[markers['Water']]*self.width for i in range(self.height)]
         self.ships = []
         for item in v2002.items():
             self.ships.append(ship.Ship(item))
             self.hitsRemaining += item[1]
 
-        print(f"Instantiated {len(self.ships)}")
+        self.frame = frame
+        self.frame.pack()
+        # Canvas to display game board
+        self.grid = tk.Canvas(self.frame, width = self.width, height = self.height)
+        # print(f"Instantiated {len(self.ships)} ships")
         
     def showBoard(self, showShips = False):
         if showShips:
@@ -43,9 +49,17 @@ class Grid:
                 # Don't show water & ships (unless we're cheating or looking at our own board)
                 if self.board[x][y] in (markers['Hit'] + markers['Miss']) or self.board[x][y] in markers['Ships'] and showShips:
                     print(f"[{self.board[x][y]}]", end="")
+                    if self.board[x][y] == markers['Hit']:
+                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="red", outline = 'gray')
+                    elif self.board[x][y] == markers['Miss']:
+                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="white", outline = 'gray')
+                    else:
+                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="black", outline = 'gray')
                 else: # show hits & misses (and possibly ships)
                     print(f"[ ]", end="")
+                    self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="blue", outline = 'gray')
             print("")
+        self.grid.update()
         print("---------------------------------")
 
     def listShips(self):
