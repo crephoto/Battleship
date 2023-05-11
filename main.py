@@ -14,6 +14,13 @@ winMain.rowconfigure(0, weight=1)
 myFrame = tk.Frame(winMain)
 oppFrame = tk.Frame(winMain)
 
+for i in range(10):
+    myFrame.columnconfigure(i, weight=1)
+    myFrame.rowconfigure(i, weight=1)
+    oppFrame.columnconfigure(i, weight=1)
+    oppFrame.rowconfigure(i, weight=1)
+
+
 myFrame.grid(row=0, column=0, sticky="news")
 #oppFrame.grid(row=0, column=0, sticky="news")
 
@@ -28,7 +35,7 @@ myBoard.placeShips()
 myBoard.showBoard(True)
 
 print("Randomly placing my ships (Don't peek!)")
-#oppBoard.placeShips()
+oppBoard.placeShips()
 #oppBoard.showBoard(False) # TESTING: Set to True for testing (or cheating!)
 
 message = "Game Over"
@@ -82,7 +89,11 @@ while not gameOver:
 
     if myBoard.gameOver(): # Did user quit?
         message += " - You forfeit!"
-        winMain.destroy()
+        try:
+            # User may have already clicked "X"
+            winMain.destroy()
+        except:
+            print("Notice: Application has already been destroyed")
         break
 
     row = ord(target[0].upper()) - 65

@@ -16,7 +16,6 @@ v2002 = {"Carrier": 5, "Battleship": 4, "Destroyer": 3, "Submarine": 3, "PT Boat
 
 markers = {"Hit": 'X', "Miss": 'm', "Water": 'w', "Ships": 'BCDPS'}
 
-gridSize = 50 # Pixels per grid
 
 class Grid:
     height = 10
@@ -31,10 +30,13 @@ class Grid:
             self.ships.append(ship.Ship(item))
             self.hitsRemaining += item[1]
 
+        self.gridScale = 50 # Pixels per grid
         self.frame = frame
         self.frame.pack()
         # Canvas to display game board
-        self.grid = tk.Canvas(self.frame, width = self.width, height = self.height)
+        print(f"Canvas width: {frame.winfo_reqwidth()}, height: {frame.winfo_reqheight()}")
+        self.grid = tk.Canvas(self.frame, width = frame.winfo_reqwidth(), height = frame.winfo_reqheight(), )
+        self.grid.grid(column=0, row=0, )
         # print(f"Instantiated {len(self.ships)} ships")
         
     def showBoard(self, showShips = False):
@@ -50,14 +52,15 @@ class Grid:
                 if self.board[x][y] in (markers['Hit'] + markers['Miss']) or self.board[x][y] in markers['Ships'] and showShips:
                     print(f"[{self.board[x][y]}]", end="")
                     if self.board[x][y] == markers['Hit']:
-                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="red", outline = 'gray')
+                        self.grid.create_rectangle(x*self.gridScale, y*self.gridScale, (x+1)*self.gridScale, (y+1)*self.gridScale, fill="red", outline = 'gray')
                     elif self.board[x][y] == markers['Miss']:
-                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="white", outline = 'gray')
+                        self.grid.create_rectangle(x*self.gridScale, y*self.gridScale, (x+1)*self.gridScale, (y+1)*self.gridScale, fill="white", outline = 'gray')
                     else:
-                        self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="black", outline = 'gray')
+                        self.grid.create_rectangle(x*self.gridScale, y*self.gridScale, (x+1)*self.gridScale, (y+1)*self.gridScale, fill="black", outline = 'gray')
                 else: # show hits & misses (and possibly ships)
                     print(f"[ ]", end="")
-                    self.grid.create_rectangle(x*gridSize, y*gridSize, (x+10)*gridSize, (y+10)*gridSize, fill="blue", outline = 'gray')
+                    # Maybe just set the canvas background to blue?
+                    self.grid.create_rectangle(x*self.gridScale, y*self.gridScale, (x+1)*self.gridScale, (y+1)*self.gridScale, fill="blue", outline = 'gray')
             print("")
         self.grid.update()
         print("---------------------------------")
